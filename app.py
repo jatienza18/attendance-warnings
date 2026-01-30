@@ -88,19 +88,23 @@ from firebase_admin import credentials, firestore
 db = None # Default to None
 try:
     if not firebase_admin._apps:
-        # 1. Try Streamlit Secrets (Cloud / secure local)
-        if "firebase" in st.secrets:
-            # st.secrets["firebase"] returns an AttrDict, convertible to dict
-            cred = credentials.Certificate(dict(st.secrets["firebase"]))
-            firebase_admin.initialize_app(cred)
-            
-        # 2. Fallback: Local JSON file
-        elif os.path.exists('serviceAccountKey.json'):
+        secrets_found = False
+        try:
+            if "firebase" in st.secrets:
+                cred = credentials.Certificate(dict(st.secrets["firebase"]))
+                firebase_admin.initialize_app(cred)
+                secrets_found = True
+        except FileNotFoundError:
+            pass # Expected locally
+        except Exception:
+            pass # Other errors, try fallback
+
+        if not secrets_found and os.path.exists('serviceAccountKey.json'):
             cred = credentials.Certificate('serviceAccountKey.json')
             firebase_admin.initialize_app(cred)
-        else:
+        elif not secrets_found:
             st.error("❌ No s'han trobat credencials de Firebase (Secrets o serviceAccountKey.json).")
-            st.stop() # Stop execution if no creds
+            st.stop()
 
     # Initialize Client only if app is initialized
     db = firestore.client()
