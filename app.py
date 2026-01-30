@@ -119,11 +119,12 @@ COLLECTION_NAME = 'attendance_warnings'
 def load_history():
     """Fetches all warnings from Firestore."""
     try:
-        # st.info("DEBUG: Iniciant descàrrega de dades...")
+        st.info("DEBUG: 1. Iniciant descàrrega de dades (timeout 15s)...")
         ref = db.collection(COLLECTION_NAME)
         # Switch from stream() to get() to avoid potential gRPC hangs in Streamlit Cloud
-        docs = ref.get() 
-        # st.info(f"DEBUG: Dades descarregades. Documents trobats: {len(docs)}")
+        # Added timeout to prevent infinite hang
+        docs = ref.get(timeout=15) 
+        st.info(f"DEBUG: 2. Dades descarregades. Documents trobats: {len(docs)}")
         
         history = {}
         for doc in docs:
