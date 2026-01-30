@@ -85,32 +85,30 @@ from firebase_admin import credentials, firestore
 
 # Initialize Firebase (Singleton)
 # Initialize Firebase (Singleton)
+db = None # Default to None
 try:
     if not firebase_admin._apps:
         # 1. Try Streamlit Secrets (Cloud / secure local)
-        # Expected structure in secrets.toml:
-        # [firebase]
-        # type = "service_account"
-        # project_id = ...
         if "firebase" in st.secrets:
-            # st.secrets["firebase"] returns an AttrDict, compatible with credentials.Certificate if dictionary-like
+            # st.secrets["firebase"] returns an AttrDict, convertible to dict
             cred = credentials.Certificate(dict(st.secrets["firebase"]))
             firebase_admin.initialize_app(cred)
-            # st.toast("✅ Connectat a Firebase via Secrets", icon="☁️")
             
         # 2. Fallback: Local JSON file
         elif os.path.exists('serviceAccountKey.json'):
             cred = credentials.Certificate('serviceAccountKey.json')
             firebase_admin.initialize_app(cred)
-            # st.toast("✅ Connectat a Firebase via Fitxer Local", icon="📂")
-            
         else:
             st.error("❌ No s'han trobat credencials de Firebase (Secrets o serviceAccountKey.json).")
+            st.stop() # Stop execution if no creds
+
+    # Initialize Client only if app is initialized
+    db = firestore.client()
 
 except Exception as e:
     st.error(f"Error inicialitzant Firebase: {e}")
+    st.stop() # Stop execution on error
 
-db = firestore.client()
 COLLECTION_NAME = 'attendance_warnings'
 
 def load_history():
