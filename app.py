@@ -9,6 +9,45 @@ os.environ["GRPC_DNS_RESOLVER"] = "native"
 
 CONFIG_FILE = 'modules_config.json'
 
+# --- Authentication ---
+def check_password():
+    """Returns True if the user had the correct password."""
+    # 1. Check if password exists in secrets (Online case)
+    try:
+        if "password" in st.secrets:
+            expected_password = st.secrets["password"]
+            
+            # Initialize session state
+            if "password_correct" not in st.session_state:
+                st.session_state["password_correct"] = False
+
+            if st.session_state["password_correct"]:
+                return True
+            
+            # Show input
+            st.title("🔒 Accés Restringit")
+            pwd_input = st.text_input("Introdueix la contrassenya:", type="password")
+            
+            if st.button("Entrar"):
+                if pwd_input == expected_password:
+                    st.session_state["password_correct"] = True
+                    st.rerun()
+                else:
+                    st.error("Contrassenya incorrecta")
+            return False
+            
+    except FileNotFoundError:
+        pass # Local execution without secrets.toml
+    except Exception as e:
+        pass # Other errors, allow access (fail open for now or log)
+
+    # Default logic: If no password configured (Local), allow access
+    return True
+
+if not check_password():
+    st.stop()
+# ----------------------
+
 def load_config():
     if os.path.exists(CONFIG_FILE):
         with open(CONFIG_FILE, 'r') as f:
