@@ -42,7 +42,8 @@ with st.sidebar:
     st.title("🎓 Assistència")
     
     # Navigation
-    page = st.radio("Navegació", ["Gestió d'Avisos", "Historial d'Enviats", "Configuració", "Models de Correu"])
+    # Changed default to History, as per user request for online viewer
+    page = st.radio("Navegació", ["Historial d'Enviats", "Gestió d'Avisos", "Configuració", "Models de Correu"])
     
     st.divider()
     
