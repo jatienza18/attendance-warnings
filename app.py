@@ -114,13 +114,14 @@ COLLECTION_NAME = 'attendance_warnings'
 def load_history():
     """Fetches all warnings from Firestore."""
     try:
+        # st.toast("⏳ Carregant historial...", icon="🔄") # Debug info
         docs = db.collection(COLLECTION_NAME).stream()
         history = {}
         for doc in docs:
             history[doc.id] = doc.to_dict()
         return history
     except Exception as e:
-        st.error(f"Error carregant Firebase: {e}")
+        st.error(f"Error detallat carregant Firebase: {e}")
         return {}
 
 def save_history(hist_updates):
