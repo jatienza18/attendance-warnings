@@ -4,6 +4,9 @@ from datetime import datetime
 import json
 import os
 
+# Fix for Streamlit Cloud gRPC hang
+os.environ["GRPC_DNS_RESOLVER"] = "native"
+
 CONFIG_FILE = 'modules_config.json'
 
 def load_config():
